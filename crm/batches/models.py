@@ -6,6 +6,8 @@ from students.models import BaseClass
 
 class Batches(BaseClass):
 
+
+
     name = models.CharField(max_length=15)
 
     start_date = models.DateField()
@@ -20,6 +22,9 @@ class Batches(BaseClass):
 
     ended_on = models.DateField(null=True,blank=True)
 
+    academic_counsellor = models.ForeignKey('academic_councellors.AcademicCounsellors',on_delete=models.SET_NULL,null=True)
+
+
     def __str__(self):
 
         return f'{self.name}'
@@ -29,3 +34,4 @@ class Batches(BaseClass):
         verbose_name = 'Batches'
 
         verbose_name_plural ='Batches'
+

@@ -7,7 +7,7 @@
       <h2
         class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200"
       >
-        Register
+        Update Student Details
       </h2>
       <!-- CTA -->
       <h4
@@ -43,6 +43,7 @@
         <label class="block text-sm mt-4">
             <span class="text-gray-700 dark:text-gray-400">Photo</span><span class="text-red-600">*</span>
             {{form.photo}}
+            <img src="{{form.instance.photo.url}}" alt=""  class="w-56 h-56 rounded-lg  border-4 border-blue-500">
             <!-- <input name="photo"
             required
               type="file"
@@ -59,11 +60,7 @@
               type="email"
               class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
               placeholder=""
-            /> -->  {%if form.email.errors%}
-          <span class="text-xs text-red-600 dark:text-red-400">
-            {{form.email.errors}}
-          </span>
-          {%endif%}
+            /> -->
           </label>
           <label class="block text-sm mt-4">
             <span class="text-gray-700 dark:text-gray-400">Contact Number</span><span class="text-red-600">*</span>
@@ -160,13 +157,13 @@
             </label>
             <!-- <label class="block text-sm mt-4">
               <span class="text-gray-700 dark:text-gray-400">Batch Date</span><span class="text-red-600">*</span>
-              {{form.batch_date}} -->
-              <!-- <input name="batch_date" required
+              {{form.batch_date}}
+              <input name="batch_date" required
                 type="date"
                 class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
                 placeholder=""
-              /> -->
-            </label>
+              /> 
+            </label> -->
             <label class="block mt-4 text-sm">
                 <span class="text-gray-700 dark:text-gray-400">Trainer</span><span class="text-red-600">*</span>
                 {{form.trainer}}
@@ -179,10 +176,9 @@
                   
                 </select> -->
               </label>
-           
               <div class="flex items-center justify-end">
                 <button type="submit" class="px-5 py-3 my-6 font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
-                    Register
+                    Update
                   </button>
               </div>
           </div>

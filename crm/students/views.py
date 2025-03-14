@@ -7,7 +7,7 @@ from django.views.generic import View
 
 from .models import DistrictChoices,CourseChoices,Batch,TrainerName
 
-from .utility import get_admission_number,get_password
+from .utility import get_admission_number,get_password,send_email
 
 from .models import Students
 
@@ -24,6 +24,19 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import  method_decorator
 
 from authentication.permission import permission_roles
+
+import threading
+
+import datetime
+
+
+# payment related imports
+
+from payment.models import Payment
+
+
+
+
 
 
 # Create your views here.
@@ -61,18 +74,38 @@ class DashBoardView(View) :
 
 class StudentsListView(View) :
 
-    def get(self,request,*args,**kwargs):
+    def get(self,request,*args,**kwargs): 
 
         query = request.GET.get('query')
 
-        students = Students.objects.filter(active_status = True)
+        role=request.user.role
+
+        if role in ['TRAINER']:
+
+            students=Students.objects.filter(active_status = True,trainer__profile=request.user)
+
+            
+            if query:
+
+               students = Students.objects.filter(Q(active_status=True)&Q(trainer__profile=request.user)&(Q(first_name__icontains=query)|Q(last_name__icontains=query)|Q(course__name__icontains=query)))
         
+        elif role in ['ACADEMIC COUNCELLOR']: 
 
-        print(query)
+            students = Students.objects.filter(active_status = True,batch__academic_counsellor__profile=request.user)
 
-        if query:
 
-            students = Students.objects.filter(Q(active_status=True)&(Q(first_name__icontains=query)|Q(last_name__icontains=query)|Q(course__name__icontains=query)))
+            if query :
+
+                students= Students.objects.filter(Q(active_status=True)&Q(batch__academic_counsellor__profile=request.user)&(Q(first_name__icontains=query)|Q(last_name__icontains=query)|Q(post_office__icontains=query)|Q(contact__icontains=query)|Q(pin_code__icontains=query)|Q(house_name__icontains=query)|Q(email__icontains=query)|Q(course__name__icontains=query)|Q(batch__name__icontains=query)|Q(district__icontains=query)))
+        else:
+
+             students = Students.objects.filter(active_status = True)
+
+             print(query)
+
+             if query:
+
+                 students = Students.objects.filter(Q(active_status=True)&(Q(first_name__icontains=query)|Q(last_name__icontains=query)|Q(course__name__icontains=query)))
 
         # students = Students.objects.all()
         
@@ -83,7 +116,7 @@ class StudentsListView(View) :
         return render(request,'students/student.html',context=data)
     
 
-# @method_decorator(permission_roles(roles=["ADMIN","SALES"]),name='dispatch')
+@method_decorator(permission_roles(roles=["ADMIN","SALES"]),name='dispatch')
 
 class StudentRegistrationView(View):
 
@@ -91,7 +124,7 @@ class StudentRegistrationView(View):
 
         form  = StudentRegisterForm()
 
-        data = {'form':form}
+        data = {'form':form,}
 
         # data = {'districts':DistrictChoices,'courses':CourseChoices,'batches':Batch,'trainers':TrainerName,'form':form}
 
@@ -102,6 +135,8 @@ class StudentRegistrationView(View):
     def post(self,request,*args,**kwargs):
         
         form = StudentRegisterForm(request.POST,request.FILES)
+
+
 
         if form.is_valid():
 
@@ -114,7 +149,9 @@ class StudentRegistrationView(View):
 
               username=student.email
 
-              password=get_password()
+              password="12345"
+
+            #   password=get_password()
 
               profile= Profile.objects.create_user(username=username,password=password,role='STUDENT')
 
@@ -123,6 +160,34 @@ class StudentRegistrationView(View):
              # student.join_date = '2025-02-05'
 
               student.save()
+
+            #    payment section
+
+              fee=student.course.offer_fee if student.course.offer_fee else fee
+
+              Payment.objects.create(student=student,amount=fee)
+
+            #   sending login credintials to student through mail
+            
+            subject='login credentials'
+
+            recepients=[student.email]
+
+            template='email/login-credential.html'
+
+            join_date=student.join_date
+
+            date_after_10_days=join_date+ datetime.timedelta(days=10)
+
+            print( date_after_10_days)
+
+            context={'name':f'{student.first_name} {student.last_name}',"username":username,"password":password,"date_after_10_days":date_after_10_days}
+            
+            # send_email(subject,recepients,template,context)
+
+            thread=threading.Thread(target=send_email,args=(subject,recepients,template,context))
+
+            thread.start()
 
             return redirect('students-list')
         
