@@ -110,6 +110,7 @@ class StudentsListView(View) :
         # students = Students.objects.all()
         
         print(students)
+        
 
         data = {'students':students,'query':query}
 

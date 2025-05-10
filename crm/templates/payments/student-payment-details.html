@@ -9,6 +9,8 @@
         <div class="mt-4">
             <h2 class="font-bold font-medium text-gray-700 dark:text-gray-400">Payment Details</h2>
         </div>
+
+        {%if payment.status == 'PENDING'%}
       
       <div class="mt-4">
         <a href="{%url 'razorpay-view'%}" class="px-5 py-3 font-medium leading-5 
